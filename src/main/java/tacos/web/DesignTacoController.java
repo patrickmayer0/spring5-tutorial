@@ -12,28 +12,46 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.SessionAttributes;
 
 import lombok.extern.slf4j.Slf4j;
 import tacos.Ingredient;
 import tacos.Ingredient.Type;
+import tacos.Order;
 import tacos.Taco;
 import tacos.data.IngredientRepository;
+import tacos.data.TacoRepository;
 
 @Slf4j
 @Controller
 @RequestMapping("/design")
+@SessionAttributes("order")
 public class DesignTacoController {
 
     private static final String TACO = "taco";
     private static final String DESIGN = "design";
 
     private final IngredientRepository ingredientRepo;
+    
+    private TacoRepository designRepo;
 
+    @ModelAttribute(name = "order")
+    public Order order() {
+      return new Order();
+    }
+
+    @ModelAttribute(name = "taco")
+    public Taco taco() {
+      return new Taco();
+    }
+    
     @Autowired
-    public DesignTacoController(IngredientRepository repository) {
+    public DesignTacoController(IngredientRepository repository, TacoRepository designRepo) {
         this.ingredientRepo = repository;
+        this.designRepo = designRepo;
     }
 
     @GetMapping
@@ -65,15 +83,19 @@ public class DesignTacoController {
     }
 
     @PostMapping
-    public String processDesign(@Valid Taco taco, Errors errors, Model model) {
-        if (errors.hasErrors()) {
-            populateModel(model);
-            model.addAttribute(TACO, taco);
+    public String processDesign(
+            @Valid Taco design, Errors errors,
+            @ModelAttribute Order order) {
+
+          if (errors.hasErrors()) {
             return "design";
+          }
+
+          Taco saved = designRepo.save(design);
+          order.addDesign(saved);
+
+          return "redirect:/orders/current";
         }
-        log.info("Processing design: " + taco);
-        return "redirect:/orders/current";
-    }
 
     private List<Ingredient> filterByType(List<Ingredient> ingredients, Type type) {
         return ingredients.stream().filter(x -> x.getType().equals(type)).collect(Collectors.toList());
