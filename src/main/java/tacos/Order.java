@@ -43,9 +43,20 @@ public class Order {
     @Digits(integer = 3, fraction = 0, message = "Invalid CVV")
     private String ccCVV;
     
-    private List<Taco> designs = new ArrayList<>();
+    private List<Taco> designs;
     
     public void addDesign(Taco taco) {
+        if (designs == null) {
+            designs = new ArrayList<>();
+        }
         designs.add(taco);
+    }
+    
+    public List<Taco> getDesigns() {
+        return designs;
+    }
+    
+    public void setDesigns(List<Taco> designs) {
+        this.designs = designs;
     }
 }

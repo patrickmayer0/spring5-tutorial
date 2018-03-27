@@ -24,9 +24,10 @@ public class JdbcTacoRepository implements TacoRepository {
     private IngredientRepository ingredientRepo;
 
     @Autowired
-    public JdbcTacoRepository(IngredientRepository ingredientRepo) {
+    public JdbcTacoRepository(IngredientRepository ingredientRepo, JdbcTemplate jdbc) {
         // work around required to get ingredient repository at this point ...
         this.ingredientRepo = ingredientRepo;
+        this.jdbc = jdbc;
     }
     
     @Override
