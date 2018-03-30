@@ -1,12 +1,11 @@
 package tacos.data;
 
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.test.context.jdbc.Sql;
+
 import tacos.Ingredient;
 
-public interface IngredientRepository {
-
-    Iterable<Ingredient> findAll();
-
-    Ingredient findOne(String id);
-
-    Ingredient save(Ingredient ingredient);
+@Sql("classpath:data.sql")
+public interface IngredientRepository extends CrudRepository<Ingredient, String> {
+    
 }
