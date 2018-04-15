@@ -39,11 +39,13 @@ public class DesignTacoController {
 
     private TacoRepository designRepo;
 
+    // create a model attribute "order" if it does not exist.
     @ModelAttribute(name = "order")
     public Order order() {
         return new Order();
     }
 
+    // create a model attribute "taco".
     @ModelAttribute(name = "taco")
     public Taco taco() {
         return new Taco();
@@ -58,7 +60,6 @@ public class DesignTacoController {
     @GetMapping
     public String showDesignForm(Model model) {
         populateDesignForm(model);
-        model.addAttribute(TACO, new Taco());
         return DESIGN;
     }
 
@@ -72,9 +73,10 @@ public class DesignTacoController {
     }
 
     @PostMapping
-    public String processDesign(@Valid Taco design, Errors errors, @ModelAttribute Order order) {
+    public String processDesign(@Valid Taco design, Errors errors, @ModelAttribute Order order, Model model) {
 
         if (errors.hasErrors()) {
+            populateDesignForm(model);
             return "design";
         }
 

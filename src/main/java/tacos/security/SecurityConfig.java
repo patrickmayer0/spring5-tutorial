@@ -8,8 +8,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.crypto.password.StandardPasswordEncoder;
 
 @Configuration
 @EnableWebSecurity
@@ -25,17 +25,26 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public PasswordEncoder encoder() {
-        return new StandardPasswordEncoder("53cr3t");
+        // Using a better password encoder.
+        return new BCryptPasswordEncoder();
     }
 
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.authorizeRequests().antMatchers("/h2-console/**").permitAll();
-        httpSecurity.authorizeRequests().antMatchers("/register").permitAll();
-        httpSecurity.authorizeRequests().antMatchers("/design", "/orders/**").access("hasRole('ROLE_USER')").and()
-                .formLogin();
+        // open door for /h2-console and /register page.
+        httpSecurity.authorizeRequests().antMatchers("/h2-console/**", "/register").permitAll();
+        
+        // authorize authenticated user on /design (design.html) and /orders (orders.html) page.
+        httpSecurity.authorizeRequests().antMatchers("/design", "/orders/**").access("hasRole('ROLE_USER')")
+        
+        /* set /login as login page (mapped to login.html) : go on to /design when logged in. */
+            .and().formLogin().loginPage("/login").defaultSuccessUrl("/design", true)
+            
+        /* display login page upon logout. */
+            .and().logout().logoutSuccessUrl("/login");
 
         httpSecurity.csrf().disable();
         httpSecurity.headers().frameOptions().disable();
     }
+ 
 }

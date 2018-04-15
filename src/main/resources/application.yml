@@ -1,0 +1,7 @@
+server:
+  port: 8443
+  ssl:
+    key-store: file:///home/pmayer/mykeys.jks
+    key-store-password: f0rce101B
+    key-password: f0rce101B
+    
